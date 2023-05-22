@@ -44,6 +44,7 @@ export const getDiscoverMovies = async ({
             params: {
                 ['release_date.gte']: releaseDateGte,
                 ['release_date.lte']: releaseDateLte,
+                region: 'KR',
             },
         },
     );

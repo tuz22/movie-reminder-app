@@ -6,6 +6,7 @@ import {
     View,
     Platform,
     StatusBar,
+    ActivityIndicator,
 } from 'react-native';
 import Movie from './Movie';
 import useMovies from './useMovies';
@@ -22,10 +23,15 @@ const styles = StyleSheet.create({
     separator: {
         height: 16,
     },
+    loadingContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 });
 
 const MoviesScreen = () => {
-    const { movies } = useMovies();
+    const { movies, isLoading } = useMovies();
     return (
         <SafeAreaView style={styles.container}>
             {Platform.OS === 'ios' ? (
@@ -33,20 +39,29 @@ const MoviesScreen = () => {
             ) : (
                 <StatusBar barStyle="dark-content" />
             )}
-            <FlatList
-                contentContainerStyle={styles.movieList} // 플렛리스트 안에 스타일 줌
-                data={movies}
-                renderItem={({ item: movie }) => (
-                    <Movie
-                        title={movie.title}
-                        originalTitle={movie.originalTitle}
-                        releaseDate={movie.releaseDate}
-                        overview={movie.overview}
-                        posterUrl={movie.posterUrl ?? undefined}
-                    />
-                )}
-                ItemSeparatorComponent={() => <View style={styles.separator} />} // 아이템 간 스타일 줌
-            />
+
+            {isLoading ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator /> {/* 로딩바 */}
+                </View>
+            ) : (
+                <FlatList
+                    contentContainerStyle={styles.movieList} // 플렛리스트 안에 스타일 줌
+                    data={movies}
+                    renderItem={({ item: movie }) => (
+                        <Movie
+                            title={movie.title}
+                            originalTitle={movie.originalTitle}
+                            releaseDate={movie.releaseDate}
+                            overview={movie.overview}
+                            posterUrl={movie.posterUrl ?? undefined}
+                        />
+                    )}
+                    ItemSeparatorComponent={() => (
+                        <View style={styles.separator} />
+                    )} // 아이템 간 스타일 줌
+                />
+            )}
         </SafeAreaView>
     );
 };
