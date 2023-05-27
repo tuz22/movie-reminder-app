@@ -6,6 +6,7 @@ import {
     StyleSheet,
     Text,
     View,
+    FlatList,
 } from 'react-native';
 import Screen from '../../components/Screen';
 import { RouteProp, useRoute } from '@react-navigation/native';
@@ -14,6 +15,7 @@ import useMovie from './useMovie';
 import Colors from 'open-color';
 import Section from './Section';
 import People from './People';
+import YouTubeVideo from './youTubeVideo';
 
 const styles = StyleSheet.create({
     loadingContainer: {
@@ -87,9 +89,12 @@ const MovieScreen = () => {
             releaseDate,
             overview,
             crews,
+            casts,
+            videos,
         } = movie;
 
         const director = crews.find(crew => crew.job === 'Director');
+        const youTubeVideos = videos.filter(video => video.site === 'YouTube');
         return (
             <ScrollView contentContainerStyle={styles.content}>
                 <View style={styles.titleSection}>
@@ -114,6 +119,55 @@ const MovieScreen = () => {
                             }>{`개봉일: ${releaseDate}`}</Text>
                     </View>
                 </View>
+                <Section title="소개">
+                    <Text style={styles.overviewText}>{overview}</Text>
+                </Section>
+                {director != null && (
+                    <Section title="감독">
+                        <People
+                            name={director.name}
+                            description={director.job}
+                            photoUrl={director.profileUrl ?? undefined}
+                        />
+                    </Section>
+                )}
+                <Section title="배우">
+                    <FlatList // ScrollView 내부에는 FlastList horizontal만 가능
+                        horizontal
+                        data={casts}
+                        renderItem={({ item: cast }) => {
+                            return (
+                                <People
+                                    name={cast.name}
+                                    description={cast.character}
+                                    photoUrl={cast.profileUrl ?? undefined}
+                                />
+                            );
+                        }}
+                        ItemSeparatorComponent={() => (
+                            // renderItem 사이에 style 줄 때 사용
+                            <View style={styles.separator} />
+                        )}
+                        showsHorizontalScrollIndicator={false} // 스크롤바 가림
+                    />
+                    <Section title="관련 영상">
+                        {youTubeVideos.map((video, index) => {
+                            return (
+                                <React.Fragment key={video.id}>
+                                    <YouTubeVideo
+                                        title={video.name}
+                                        youTubeKey={video.key}
+                                    />
+                                    {index + 1 < youTubeVideos.length && (
+                                        <View
+                                            style={styles.verticalSeparator}
+                                        />
+                                    )}
+                                </React.Fragment>
+                            );
+                        })}
+                    </Section>
+                </Section>
             </ScrollView>
         );
     }, [movie]);
