@@ -7,6 +7,7 @@ import {
     Platform,
     StatusBar,
     ActivityIndicator,
+    RefreshControl,
 } from 'react-native';
 import Movie from './Movie';
 import useMovies from './useMovies';
@@ -31,7 +32,7 @@ const styles = StyleSheet.create({
 });
 
 const MoviesScreen = () => {
-    const { movies, isLoading, loadMore, canLoadMore } = useMovies();
+    const { movies, isLoading, loadMore, canLoadMore, refresh } = useMovies();
     return (
         <SafeAreaView style={styles.container}>
             {Platform.OS === 'ios' ? (
@@ -40,9 +41,10 @@ const MoviesScreen = () => {
                 <StatusBar barStyle="dark-content" />
             )}
 
+            {/* ActivityIndicator: 로딩바 */}
             {isLoading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator /> {/* 로딩바 */}
+                    <ActivityIndicator />
                 </View>
             ) : (
                 <FlatList
@@ -66,6 +68,13 @@ const MoviesScreen = () => {
                             loadMore();
                         }
                     }}
+                    refreshControl={
+                        <RefreshControl
+                            tintColor={Colors.white} // ios 로딩아이콘색 android는 colors
+                            refreshing={isLoading}
+                            onRefresh={refresh}
+                        />
+                    }
                 />
             )}
         </SafeAreaView>
