@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
 });
 
 const MoviesScreen = () => {
-    const { movies, isLoading } = useMovies();
+    const { movies, isLoading, loadMore, canLoadMore } = useMovies();
     return (
         <SafeAreaView style={styles.container}>
             {Platform.OS === 'ios' ? (
@@ -60,6 +60,12 @@ const MoviesScreen = () => {
                     ItemSeparatorComponent={() => (
                         <View style={styles.separator} />
                     )} // 아이템 간 스타일 줌
+                    onEndReached={() => {
+                        // 제일 아래에 닿을 때
+                        if (canLoadMore) {
+                            loadMore();
+                        }
+                    }}
                 />
             )}
         </SafeAreaView>
