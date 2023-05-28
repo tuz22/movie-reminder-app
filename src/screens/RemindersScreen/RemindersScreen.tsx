@@ -26,6 +26,11 @@ const styles = StyleSheet.create({
     textContainer: {
         flex: 1,
     },
+    nullTextContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     titleText: {
         fontSize: 18,
         color: Colors.white,
@@ -57,48 +62,66 @@ const styles = StyleSheet.create({
 const RemindersScreen = () => {
     const { reminders, removeReminder } = useReminder();
 
-    console.log('reminders', reminders);
+    console.log('reminders', reminders.length);
+    if (reminders.length < 1) {
+        console.log('푸시없음');
+    }
 
     return (
         <Screen>
-            <FlatList
-                contentContainerStyle={styles.reminderList}
-                data={reminders}
-                renderItem={({ item: reminder }) => {
-                    return (
-                        <View style={styles.reminderItem}>
-                            <View style={styles.textContainer}>
-                                <Text style={styles.titleText}>
-                                    {reminder.notification.body}
-                                </Text>
-                                {'timestamp' in reminder.trigger && ( // reminder의 trigger가 'timestamp'일 때만
-                                    <Text style={styles.timestampText}>
-                                        {moment(
-                                            reminder.trigger.timestamp,
-                                        ).format('LLL')}
+            {reminders.length < 1 ? (
+                // <View style={styles.reminderItem}>
+                <View style={styles.nullTextContainer}>
+                    <Text style={styles.titleText}>
+                        등록된 푸시 알림이 없습니다.
+                    </Text>
+                </View>
+            ) : (
+                // </View>
+                //
+                <FlatList
+                    contentContainerStyle={styles.reminderList}
+                    data={reminders}
+                    renderItem={({ item: reminder }) => {
+                        return (
+                            <View style={styles.reminderItem}>
+                                <View style={styles.textContainer}>
+                                    <Text style={styles.titleText}>
+                                        {reminder.notification.body}
                                     </Text>
-                                )}
+                                    {'timestamp' in reminder.trigger && ( // reminder의 trigger가 'timestamp'일 때만
+                                        <Text style={styles.timestampText}>
+                                            {moment(
+                                                reminder.trigger.timestamp,
+                                            ).format('LLL')}
+                                        </Text>
+                                    )}
+                                </View>
+                                <View style={styles.removeReminderContainer}>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            if (
+                                                reminder.notification.id != null
+                                            ) {
+                                                removeReminder(
+                                                    reminder.notification.id,
+                                                );
+                                            }
+                                        }}>
+                                        <Icon
+                                            style={styles.removeReminderIcon}
+                                            name="notifications-off"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                            <View style={styles.removeReminderContainer}>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        if (reminder.notification.id != null) {
-                                            removeReminder(
-                                                reminder.notification.id,
-                                            );
-                                        }
-                                    }}>
-                                    <Icon
-                                        style={styles.removeReminderIcon}
-                                        name="notifications-off"
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    );
-                }}
-                ItemSeparatorComponent={() => <View style={styles.separator} />}
-            />
+                        );
+                    }}
+                    ItemSeparatorComponent={() => (
+                        <View style={styles.separator} />
+                    )}
+                />
+            )}
         </Screen>
     );
 };

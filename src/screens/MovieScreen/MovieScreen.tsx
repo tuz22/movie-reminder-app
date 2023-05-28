@@ -218,23 +218,25 @@ const MovieScreen = () => {
                         )}
                         showsHorizontalScrollIndicator={false} // 스크롤바 가림
                     />
-                    <Section title="관련 영상">
-                        {youTubeVideos.map((video, index) => {
-                            return (
-                                <React.Fragment key={video.id}>
-                                    <YouTubeVideo
-                                        title={video.name}
-                                        youTubeKey={video.key}
-                                    />
-                                    {index + 1 < youTubeVideos.length && (
-                                        <View
-                                            style={styles.verticalSeparator}
+                    {youTubeVideos.length < 1 ? null : (
+                        <Section title="관련 영상">
+                            {youTubeVideos.map((video, index) => {
+                                return (
+                                    <React.Fragment key={video.id}>
+                                        <YouTubeVideo
+                                            title={video.name}
+                                            youTubeKey={video.key}
                                         />
-                                    )}
-                                </React.Fragment>
-                            );
-                        })}
-                    </Section>
+                                        {index + 1 < youTubeVideos.length && (
+                                            <View
+                                                style={styles.verticalSeparator}
+                                            />
+                                        )}
+                                    </React.Fragment>
+                                );
+                            })}
+                        </Section>
+                    )}
                 </Section>
             </ScrollView>
         );
