@@ -5,6 +5,7 @@ import notifee, {
     AndroidNotificationSetting,
     TimestampTrigger,
     TriggerType,
+    TriggerNotification,
 } from '@notifee/react-native';
 import { Platform } from 'react-native';
 import moment from 'moment';
@@ -57,7 +58,8 @@ const useReminder = () => {
             // Create a time-based trigger
             const trigger: TimestampTrigger = {
                 type: TriggerType.TIMESTAMP,
-                timestamp: moment().add(5, 'seconds').valueOf(), // moment(releaseDate).valueOf(), // releaseDate때 푸시알림 발송
+                // timestamp: moment().add(5, 'seconds').valueOf(), // 5초 뒤 푸시알림 발송
+                timestamp: moment(releaseDate).valueOf(), // releaseDate때 푸시알림 발송
             };
 
             // Create a trigger notification
@@ -76,8 +78,23 @@ const useReminder = () => {
         [channelId],
     );
 
+    // 알림 리스트 불러오기
+    const [reminders, setReminders] = useState<TriggerNotification[]>([]); // 2. 그걸 remiders에 저장해서
+    const loadReminders = useCallback(async () => {
+        return notifee.getTriggerNotifications();
+    }, []);
+
+    useEffect(() => {
+        // useEffect안에 await을 바로 못써서 괄호 한번 더 해줌
+        (async () => {
+            const notifications = await loadReminders();
+            setReminders(notifications);
+        })();
+    }, [loadReminders]); // 1. usereminder()가 마운트 되면 loadReminders()를 호출하고
+
     return {
         addReminder,
+        reminders, // 3. usereminder()에서 reminders를 사용할 수 있게 됨
     };
 };
 
