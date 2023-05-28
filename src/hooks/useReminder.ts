@@ -28,6 +28,14 @@ const useReminder = () => {
         })();
     }, []);
 
+    // 알림 리스트 불러오기
+    const [reminders, setReminders] = useState<TriggerNotification[]>([]);
+    const loadReminders = useCallback(async () => {
+        // 3. loadReminders는 다시 읽어온 다음
+        const notifications = await notifee.getTriggerNotifications(); // 4. notifications을 업데이트
+        setReminders(notifications);
+    }, []);
+
     // 푸쉬 예약
     const addReminder = useCallback(
         async (movieId: number, releaseDate: string, title: string) => {
@@ -74,17 +82,11 @@ const useReminder = () => {
                 },
                 trigger,
             );
-        },
-        [channelId],
-    );
 
-    // 알림 리스트 불러오기
-    const [reminders, setReminders] = useState<TriggerNotification[]>([]);
-    const loadReminders = useCallback(async () => {
-        // 3. loadReminders는 다시 읽어온 다음
-        const notifications = await notifee.getTriggerNotifications(); // 4. notifications을 업데이트
-        setReminders(notifications);
-    }, []);
+            await loadReminders(); // MovieScreen에서 알림 추가시 재랜더링시키기
+        },
+        [channelId, loadReminders],
+    );
 
     useEffect(() => {
         loadReminders();
@@ -99,10 +101,20 @@ const useReminder = () => {
         [loadReminders],
     );
 
+    // 알림 유무 확인
+    const hasReminder = useCallback(
+        (id: string) => {
+            const reminder = reminders.find(r => r.notification.id === id);
+            return reminder != null;
+        },
+        [reminders],
+    );
+
     return {
         addReminder,
         reminders,
         removeReminder,
+        hasReminder,
     };
 };
 
