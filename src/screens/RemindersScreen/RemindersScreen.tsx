@@ -1,9 +1,16 @@
 import React from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import {
+    FlatList,
+    StyleSheet,
+    Text,
+    View,
+    TouchableOpacity,
+} from 'react-native';
 import Colors from 'open-color';
 import useReminder from '../../hooks/useReminder';
 import Screen from '../../components/Screen';
 import moment from 'moment';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const styles = StyleSheet.create({
     reminderList: {
@@ -14,6 +21,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 12,
         borderColor: Colors.gray[6],
+        flexDirection: 'row',
+    },
+    textContainer: {
+        flex: 1,
     },
     titleText: {
         fontSize: 18,
@@ -33,10 +44,18 @@ const styles = StyleSheet.create({
     separator: {
         height: 8,
     },
+    removeReminderContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    removeReminderIcon: {
+        color: Colors.white,
+        fontSize: 24,
+    },
 });
 
 const RemindersScreen = () => {
-    const { reminders } = useReminder();
+    const { reminders, removeReminder } = useReminder();
 
     console.log('reminders', reminders);
 
@@ -48,16 +67,33 @@ const RemindersScreen = () => {
                 renderItem={({ item: reminder }) => {
                     return (
                         <View style={styles.reminderItem}>
-                            <Text style={styles.titleText}>
-                                {reminder.notification.body}
-                            </Text>
-                            {'timestamp' in reminder.trigger && ( // reminder의 trigger가 'timestamp'일 때만
-                                <Text style={styles.timestampText}>
-                                    {moment(reminder.trigger.timestamp).format(
-                                        'LLL',
-                                    )}
+                            <View style={styles.textContainer}>
+                                <Text style={styles.titleText}>
+                                    {reminder.notification.body}
                                 </Text>
-                            )}
+                                {'timestamp' in reminder.trigger && ( // reminder의 trigger가 'timestamp'일 때만
+                                    <Text style={styles.timestampText}>
+                                        {moment(
+                                            reminder.trigger.timestamp,
+                                        ).format('LLL')}
+                                    </Text>
+                                )}
+                            </View>
+                            <View style={styles.removeReminderContainer}>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        if (reminder.notification.id != null) {
+                                            removeReminder(
+                                                reminder.notification.id,
+                                            );
+                                        }
+                                    }}>
+                                    <Icon
+                                        style={styles.removeReminderIcon}
+                                        name="notifications-off"
+                                    />
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     );
                 }}

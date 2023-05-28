@@ -79,22 +79,30 @@ const useReminder = () => {
     );
 
     // 알림 리스트 불러오기
-    const [reminders, setReminders] = useState<TriggerNotification[]>([]); // 2. 그걸 remiders에 저장해서
+    const [reminders, setReminders] = useState<TriggerNotification[]>([]);
     const loadReminders = useCallback(async () => {
-        return notifee.getTriggerNotifications();
+        // 3. loadReminders는 다시 읽어온 다음
+        const notifications = await notifee.getTriggerNotifications(); // 4. notifications을 업데이트
+        setReminders(notifications);
     }, []);
 
     useEffect(() => {
-        // useEffect안에 await을 바로 못써서 괄호 한번 더 해줌
-        (async () => {
-            const notifications = await loadReminders();
-            setReminders(notifications);
-        })();
-    }, [loadReminders]); // 1. usereminder()가 마운트 되면 loadReminders()를 호출하고
+        loadReminders();
+    }, [loadReminders]);
+
+    // 알림 취소
+    const removeReminder = useCallback(
+        async (id: string) => {
+            await notifee.cancelTriggerNotification(id); // 1. 알림을 삭제하고
+            await loadReminders(); // 2. loadReminders를 하고
+        },
+        [loadReminders],
+    );
 
     return {
         addReminder,
-        reminders, // 3. usereminder()에서 reminders를 사용할 수 있게 됨
+        reminders,
+        removeReminder,
     };
 };
 
